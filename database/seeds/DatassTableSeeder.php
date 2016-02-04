@@ -19,7 +19,7 @@ class DatassTableSeeder extends Seeder
         foreach(range(1,10) as $number){//建立隨機變數數值
             $datas = new Data;
             $id = rand(1,10);
-          $datas->user_name = \APP\Models\User::find($id)->users_name;
+          $datas->user_name = \APP\Models\Myuser::find($id)->users_name;
 
 //           $data->user_name = $faker->name;
 //            $data->data;

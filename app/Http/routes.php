@@ -70,14 +70,14 @@ Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data =
 
    Route::get('API/user_id={users_id}',["as" => "API/user_id=",function($users_id){//"as" => "API"設定暱稱 function設定變數
 
-       return \App\Models\User::find($users_id); //找uses_id顯示出資訊
+       return \App\Models\Myuser::find($users_id); //找uses_id顯示出資訊
 //        return \App\Models\User::all()->where('email','like','%');//找出指定位置顯示出來
 //          return \App\Models\User::all();//顯示全部資料
    }]);
 
    Route::get('API/all',["as" => "API/all",function(){//"as" => "API"設定暱稱 function設定變數
 
-        return \App\Models\User::all();//找出指定位置顯示出來
+        return \App\Models\Myuser::all();//找出指定位置顯示出來
 
    }]);
 
@@ -88,7 +88,7 @@ Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data =
 //   return \App\Models\User::where('email','like','%yahoo%')->get();
 
 //   return \App\Models\User::where('email','like','%yahoo%')->get()->toJson();//找出指定email關鍵字,將位置用json顯示出來
-  return \App\Models\User::where('email','like','%gmail%')->orderBy('email','asc')->get();//desc從大到小排序   //asc從小到大排序
+  return \App\Models\Myuser::where('email','like','%gmail%')->orderBy('email','asc')->get();//desc從大到小排序   //asc從小到大排序
 //     return \App\Models\User::where('email','like','%yahoo%')->get()->count(); //顯示第幾筆資料
 
    }]);
@@ -97,12 +97,31 @@ Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data =
        return view('fileUpLoad');
 
    });
-   Route::get('API/PhotosFrom{user}',["as" => "API/all",function($user){
-       $photos = APP\Models\User::where('user_name','=',$user)->first()->photos;
+//Route::group(['prefix' => 'API/'], function(){
+//    $email = 'ggxx@gmail.com';
+//    $password ='ggxx0926';
+//
+//    if(Auth::attempt)
+//
+//});
+Route::get('API/getPhotosFrom({user})', ["as" => "API/all", function ($user) {
 
-       return $photos;
+    return App\Models\Myuser::where('users_name','=',$user)->photos()->get();
+}]);
+
+   Route::get('API/PhotosFrom{user}',['as' => "API/all",function($user){
+       $datas = App\Models\Myuser::where('users_name','=',$user)->first()->datas;
+
+       return view('photoFromUser',['datas'=>$datas]);
 
    }]);
+
+Route::get('API/{user}FromPhotos', ["as" => "API/all", function ($user) {
+    $user = App\Models\Data::where('user_name','=',$user)->first()->myusers;
+
+    return view('userFromPhoto',['data' => $user]);
+}]);
+
    Route::post('API/fileUpLoadGo',function(){
 
 //       $file = Request::input('user_file');
@@ -155,4 +174,10 @@ Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data =
 
 Route::group(['middleware' => ['web']], function () {  //web改api即可連APP
 
+});
+
+Route::group(['middleware' => 'web'], function () {
+    Route::auth();
+
+    Route::get('/home', 'HomeController@index');
 });

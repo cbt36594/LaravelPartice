@@ -3,7 +3,7 @@
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Migrations\Migration;
 
-class RenameUsersTable extends Migration
+class RenameUsersTable2 extends Migration
 {
     /**
      * Run the migrations.

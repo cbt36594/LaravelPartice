@@ -14,7 +14,7 @@ class UsersTableSeeder extends Seeder
     public function run()
     {
         //
-        \App\Models\User::truncate();//呼叫類別
+        \App\Models\Myuser::truncate();//呼叫類別
 
 
         $faker = \Faker\Factory::create('zh_TW');//假資料套件
