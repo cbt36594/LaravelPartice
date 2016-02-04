@@ -109,18 +109,7 @@ Route::get('API/getPhotosFrom({user})', ["as" => "API/all", function ($user) {
     return App\Models\Myuser::where('users_name','=',$user)->photos()->get();
 }]);
 
-   Route::get('API/PhotosFrom{user}',['as' => "API/all",function($user){
-       $datas = App\Models\Myuser::where('users_name','=',$user)->first()->datas;
 
-       return view('photoFromUser',['datas'=>$datas]);
-
-   }]);
-
-Route::get('API/{user}FromPhotos', ["as" => "API/all", function ($user) {
-    $user = App\Models\Data::where('user_name','=',$user)->first()->myusers;
-
-    return view('userFromPhoto',['data' => $user]);
-}]);
 
    Route::post('API/fileUpLoadGo',function(){
 
@@ -172,12 +161,15 @@ Route::get('API/{user}FromPhotos', ["as" => "API/all", function ($user) {
 |
 */
 
-Route::group(['middleware' => ['web']], function () {  //web改api即可連APP
 
-});
+
 
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
     Route::get('/home', 'HomeController@index');
+
+    Route::get('API/PhotosFrom{user}','apiController@photosFromUser');//變數直接傳到 controller 的函式中處理
+
+    Route::get('API/{user}FromPhotos', 'apiController@userFromPhotos');
 });
