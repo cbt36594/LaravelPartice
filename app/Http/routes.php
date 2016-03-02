@@ -52,11 +52,11 @@ Route::get('subLayout',function(){
 //                ]
 //          );
 
-Route::get('dataInput/{data}',["as"=>"Input", function($data){
-
-    return "你輸入的是:$data";
-
-}]);
+//Route::get('dataInput/{data}',["as"=>"Input", function($data){
+//
+//    return "你輸入的是:$data";
+//
+//}]);
 Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data = null){
 
     return "你輸入的是:$data";
@@ -149,7 +149,39 @@ Route::get('API/getPhotosFrom({user})', ["as" => "API/all", function ($user) {
 
 
    });
+//Route::Post('API/login',function(){
+//
+//   try{
+//
+//       $user = Sentry::authenticate(Input::all(), false); //驗證user資料
+//       $token = hash('sha256',Str::random(60),false); //產生隨機編碼放入token
+//       $user->api_token = $token;
+//       $user->save();
+//
+//       return Response::json(array('token' =>$token,'user'=>$user->toArray()));
+//   }
+//    catch(exception $e)
+//    {
+//        App::abort(404,$e->getMessage());
+//    }
+//});
+Route::Get('API/login/{email}/{password}',function($email,$password){
+    $credentials = array(
+    'email' => $email,
+    'password' =>$password,
 
+    );
+    if(Auth::once($credentials)){
+
+       $token = hash('sha256',Str_random(60),false); //產生隨機編碼放入token
+       $user = Auth::user();//取得user model
+       $user->api_token = $token;
+       $user->save();
+
+       return Response::json(array('token' =>$token,'user'=>$user->toArray()));
+    }
+
+});
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -164,9 +196,31 @@ Route::get('API/getPhotosFrom({user})', ["as" => "API/all", function ($user) {
 
 
 
+Route::group(['middleware' => 'auth:api'], function () {
+
+
+    Auth::guard('api')->user();
+
+    Route::get("API/user_token", ["as" =>"API:user_token", function($data){
+
+        $token = Auth::getTokenForRequest();
+
+        return "user api_token:$token";
+
+    }]);
+
+    Route::get("dataInput/{data}", ["as" =>"Input", function($data){
+
+        return "你輸入的是:$data";
+    }]);
+});
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
+        Route::get("dataInput/{data}", ["as" =>"Input", function($data){
+
+        return "你輸入的是:$data";
+    }]);
     Route::get('/home', 'HomeController@index');
 
     Route::get('API/PhotosFrom{user}','apiController@photosFromUser');//變數直接傳到 controller 的函式中處理
