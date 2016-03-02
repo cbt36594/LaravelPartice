@@ -27,7 +27,7 @@ class AddApiTokenToUsersTable extends Migration
     {
         Schema::table('users', function (Blueprint $table) {
             //
-            $table->dropColumn('api_token,60');
+            $table->dropColumn('api_token');
         });
     }
 }

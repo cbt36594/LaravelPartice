@@ -175,10 +175,10 @@ Route::Get('API/login/{email}/{password}',function($email,$password){
 
        $token = hash('sha256',Str_random(60),false); //產生隨機編碼放入token
        $user = Auth::user();//取得user model
-       $user->api_token = $token;
+       $user->api_token = $token;//準備把 token 存入資料庫
        $user->save();
 
-       return Response::json(array('token' =>$token,'user'=>$user->toArray()));
+       return Response::json(array('token' =>$token,'user'=>$user->toArray()));//把資料以 json 格式回應成網頁
     }
 
 });
