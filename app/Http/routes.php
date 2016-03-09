@@ -62,7 +62,37 @@ Route::get('dataInputOption/{data?}',["as"=>"dataInputOption",  function($data =
     return "你輸入的是:$data";
 
 }]);
-   Route::get('dataInputMulti/{data} - {data2}', ["as"=>"dataInputMulti", function($data,$data2){
+Route::get('abc',["as"=>"abc",  function(){
+
+ // 測試一：取得users資料表的全部資料
+//    $users = DB::table('users')->get();
+//  return $users;
+
+ // 測試二：取得users資料表，id為1的資料
+//    $user = DB::table('users')->find(1);
+//  dd($user);  // dd means: die(var_dump($user));
+//  return $user->username;
+
+
+// 測試三：用where條件式來取得相關資料
+ $users = DB::table('users')->where("name", "=", "Nevic")->get();
+//  也可使用：DB::select('select * from users');
+  return $users;
+}]);
+
+
+//            function(){
+//    $email = $_POST['usernames'];
+//    $password = $_POST['pwd'];
+////    $sql = "INSERT INTO users (username,password) VALUES ('$username','$password')";
+//   $sql =  DB::insert('insert into users (email, password) values (?, ?)'),[$email, $password];
+//    return '登入成功';
+//});
+
+
+
+
+Route::get('dataInputMulti/{data} - {data2}', ["as"=>"dataInputMulti", function($data,$data2){
 
     return "你輸入的是:$data , $data2";
 
@@ -182,6 +212,31 @@ Route::Get('API/login/{email}/{password}',function($email,$password){
     }
 
 });
+Route::post('post',function(){
+
+    $email = Request::input('email');
+    $password = Request::input('password');
+
+     $credentials = array(
+       'email' => $email,
+       'password' =>$password,
+
+    );
+     if(Auth::once($credentials)){
+
+       $token = hash('sha256',Str_random(60),false); //產生隨機編碼放入token
+       $user = Auth::user();//取得user model
+       $user->api_token = $token;//準備把 token 存入資料庫
+       $user->save();
+
+//    return $users = DB::table('users')->where("name", "=", "Nevic")->get();
+    return Response::json(array('token' =>$token,'user'=>$user->toArray()));
+     }
+
+//     return Response::json("email=$email $password");
+});
+
+
 /*
 |--------------------------------------------------------------------------
 | Application Routes
@@ -196,28 +251,56 @@ Route::Get('API/login/{email}/{password}',function($email,$password){
 
 
 
+//Route::group(['middleware' => 'auth:api'], function () {
+//
+//
+////    Auth::guard('api')->user();
+//
+////    Route::get("API/user_token", ["as" =>"API:user_token", function($data){
+////
+////        $token = Auth::getTokenForRequest();
+////
+////        return "user api_token:$token";
+////
+////    }]);
+////
+//    Route::get("dataInput123/{data}", ["as" =>"Input", function($data){
+//
+//        return "你輸入的是:$data";
+//    }]);
+//
+//    Route::post("dataInputPost", function(){
+//        if(Request::has("dataInputPost"))
+//        {
+//
+//            return Response::json(array("dataInputPost" => Request::input("dataInputPost")));
+//        }
+//        return Response::json(array("dataInputPost" => "auth:api + post --> work!"));
+//
+//    });
+//
+//});
 Route::group(['middleware' => 'auth:api'], function () {
 
-
-    Auth::guard('api')->user();
-
-    Route::get("API/user_token", ["as" =>"API:user_token", function($data){
-
-        $token = Auth::getTokenForRequest();
-
-        return "user api_token:$token";
-
+    //需要放在這裹才能使用 API 認證機制
+    Route::get("API/dataInput/{data}", ["as" => "Input", function($data){
+//        return "你輸入的是：$data";
+        return Response::json(array('dataInput' => $data));//把資料以 json 格式回應成網頁
     }]);
 
-    Route::get("dataInput/{data}", ["as" =>"Input", function($data){
-
-        return "你輸入的是:$data";
-    }]);
+    Route::post("API/dataInputPost/", function(){//若 post token 成功的話，即可進入這個 route～
+//        if(Request::has("dataInputPost"))//測試 Request 其他 method
+//        {
+            return Response::json(array("dataInputPost" => Request::input("dataInputPost")));
+//        }
+//
+//        return Response::json(array("dataInputPost" => "auth:api + post --> work!"));
+    });
 });
 Route::group(['middleware' => 'web'], function () {
     Route::auth();
 
-        Route::get("dataInput/{data}", ["as" =>"Input", function($data){
+    Route::get("dataInput/{data}", ["as" =>"Input", function($data){
 
         return "你輸入的是:$data";
     }]);
